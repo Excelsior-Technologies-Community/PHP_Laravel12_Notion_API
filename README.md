@@ -1,59 +1,429 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PHP_Laravel12_Notion_API 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Project Description
 
-## About Laravel
+The PHP_Laravel12_Notion_API project is a Laravel 12 based REST API that simulates integration with Notion. It allows developers to fetch and create pages from a Notion-like database using a mocked service, without requiring real Notion API credentials.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This project is designed for learning, testing, and development purposes to understand how Laravel services, controllers, and APIs interact with external platforms like Notion. The project can later be extended to work with real Notion API keys for production.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Fetch list of pages (GET API)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Create a new page (POST API)
 
-## Laravel Sponsors
+- Mocked Notion API for testing without real keys
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Clean structure with Service & Controller
 
-### Premium Partners
+- Easy to extend for real Notion integration
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
 
-## Contributing
+## Technologies 
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. PHP 8+ – Backend language
 
-## Code of Conduct
+2. Laravel 12 – PHP framework
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. MySQL – Database
 
-## Security Vulnerabilities
+4. Postman / curl – API testing
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. Composer – Dependency management
 
-## License
+6. MVC + Service Layer – Clean code structure
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Future Enhancements
+
+- Integrate real Notion API using actual credentials
+
+- Add authentication for secure API usage
+
+- Implement update and delete operations
+
+- Add frontend interface using Vue.js or React
+
+
+
+---
+
+
+## Installation Steps
+
+
+---
+
+
+## STEP 1: Create Laravel 12 Project
+
+### Open terminal / CMD and run:
+
+```
+composer create-project laravel/laravel PHP_Laravel12_Notion_API "12.*"
+
+```
+
+### Go inside project:
+
+```
+cd PHP_Laravel12_Notion_API
+
+```
+
+#### Explanation:
+
+This command installs a fresh Laravel 12 application and creates the project folder.
+
+The cd command moves into the newly created project directory.
+
+
+
+
+## STEP 2: Database Setup 
+
+### Update database details:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel12_Notion_API
+DB_USERNAME=root
+DB_PASSWORD=
+
+```
+
+### Create database in MySQL / phpMyAdmin:
+
+```
+Database name: laravel12_Notion_API
+
+```
+
+### Then Run:
+
+```
+php artisan migrate
+
+```
+
+
+#### Explanation:
+
+Connects Laravel to MySQL and creates default tables for the project.
+
+
+
+
+## STEP 3: Install HTTP Client & Notion Package 
+
+### Install the package:
+
+```
+composer require fiveam-code/laravel-notion-api
+
+```
+
+#### Explanation
+
+Installs the Laravel Notion API package to help communicate with Notion (or mock it).
+
+
+
+
+## STEP 4: Publish the Notion Config
+
+### Run:
+
+```
+php artisan vendor:publish --provider="NotionX\LaravelNotionApi\ServiceProvider"
+
+```
+
+### This creates:
+
+```
+config/notion.php
+
+```
+
+
+#### Explanation:
+
+Creates config/notion.php for configuring your Notion API settings.
+
+
+
+
+## STEP 5: Setup Notion Config File
+
+### Open config/notion.php and replace with:
+
+```
+<?php
+
+return [
+    'token' => env('NOTION_KEY'),
+    'version' => env('NOTION_VERSION', '2022-06-28'),
+    'database_id' => env('NOTION_DATABASE_ID'),
+];
+
+```
+
+#### Explanation:
+
+Sets up the Notion API configuration using environment variables (can be mocked for now).
+
+
+
+
+
+## STEP 6: Create Notion API Service
+
+### Create directory:
+
+```
+mkdir app/Services/Notion
+
+```
+
+### Create file: app/Services/Notion/NotionService.php
+
+```
+<?php
+
+namespace App\Services\Notion;
+
+class NotionService
+{
+    // Mocked database items
+    public function getDatabaseItems()
+    {
+        return [
+            'results' => [
+                [
+                    'id' => '1',
+                    'properties' => [
+                        'Name' => [
+                            'title' => [
+                                ['text' => ['content' => 'Sample Page 1']]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'id' => '2',
+                    'properties' => [
+                        'Name' => [
+                            'title' => [
+                                ['text' => ['content' => 'Sample Page 2']]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    // Mock creating a new page
+    public function createPage(array $data)
+    {
+        return [
+            'object' => 'page',
+            'id' => 'mocked_' . rand(100, 999),
+            'properties' => [
+                'Name' => [
+                    'title' => [
+                        ['text' => ['content' => $data['title'] ?? 'Untitled Page']]
+                    ]
+                ]
+            ]
+        ];
+    }
+}
+
+```
+
+#### Explanation:
+
+Handles all Notion API logic (mocked here) for listing and creating pages.
+
+
+
+
+
+## STEP 7: Create Controller
+
+### Run:
+
+```
+php artisan make:controller NotionController
+
+```
+
+### Open: app/Http/Controllers/NotionController.php
+
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\Notion\NotionService;
+use Illuminate\Http\Request;
+
+class NotionController extends Controller
+{
+    protected $notion;
+
+    public function __construct(NotionService $notion)
+    {
+        $this->notion = $notion;
+    }
+
+    // GET /api/notion
+    public function index()
+    {
+        $data = $this->notion->getDatabaseItems();
+        return response()->json($data);
+    }
+
+    // POST /api/notion
+    public function create(Request $request)
+    {
+        $page = $this->notion->createPage([
+            'title' => $request->title
+        ]);
+
+        return response()->json($page);
+    }
+}
+
+```
+#### Explanation:
+
+Controller connects routes to the Notion service for GET and POST requests.
+
+
+
+
+## STEP 8: Add API Routes
+
+### Open: routes/api.php
+
+```
+use App\Http\Controllers\NotionController;
+
+Route::get('notion', [NotionController::class, 'index']);
+Route::post('notion', [NotionController::class, 'create']);
+
+```
+
+#### Explanation:
+
+Defines API endpoints /api/notion for GET (list pages) and POST (create page).
+
+
+
+
+## STEP 9:Test Your APIs
+
+###  Test It
+
+### Start Laravel dev server:
+
+```
+php artisan serve
+
+```
+
+### Open in browser:
+
+```
+http://127.0.0.1:8000
+
+```
+
+#### Explanation:
+
+Runs your Laravel project locally.
+
+
+
+## STEP 10: Check In Postman
+
+### GET Request:
+
+1. Method: GET
+
+2. URL:
+
+```
+ http://127.0.0.1:8000/api/notion
+
+```
+
+3. Click Send → You will see the JSON output.
+
+
+<img width="1446" height="911" alt="Screenshot 2026-03-11 143513" src="https://github.com/user-attachments/assets/54974386-69ff-4677-8935-5ba27bdaa9ac" />
+
+
+
+
+
+
+### POST Request:
+
+1. Method: POST
+
+2. URL:
+
+```
+http://127.0.0.1:8000/api/notion
+
+```
+
+3. Body → Raw → JSON:
+
+```
+{
+  "title": "My Test Page"
+}
+
+```
+
+4. Click Send → You will see the newly created mocked page.
+
+
+<img width="1430" height="918" alt="Screenshot 2026-03-11 143552" src="https://github.com/user-attachments/assets/316907c3-53b2-43ae-ab63-07d1161d16d0" />
+
+
+
+
+
+---
+
+
+# Project Folder Structure:
+
+```
+PHP_Laravel12_Notion_API/
+├── app/
+│   ├── Http/
+│   │   └── Controllers/
+│   │       └── NotionController.php
+│   └── Services/
+│       └── Notion/
+│           └── NotionService.php
+├── config/
+│   └── notion.php
+├── routes/
+│   └── api.php
+├── .env
+├── artisan
+└── composer.json
+
+```
