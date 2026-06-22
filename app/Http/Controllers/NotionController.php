@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Notion\NotionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class NotionController extends Controller
 {
@@ -14,51 +15,59 @@ class NotionController extends Controller
         $this->notion = $notion;
     }
 
-    // GET all pages
+    public function dashboard()
+    {
+        $analytics = Cache::remember('notion_analytics', 600, function () {
+            return $this->notion->getAnalytics();
+        });
+
+        $items = Cache::remember('notion_pages', 300, function () {
+            return $this->notion->getDatabaseItems();
+        });
+
+        return view('notion.dashboard', compact('analytics', 'items'));
+    }
+
     public function index()
     {
+        $pages = Cache::remember('notion_pages', 300, function () {
+            return $this->notion->getDatabaseItems();
+        });
+
         return response()->json([
             'success' => true,
-            'pages' => $this->notion->getDatabaseItems()
+            'pages' => $pages
         ]);
     }
 
-    // CREATE page
+    public function sync()
+    {
+        $count = $this->notion->syncDatabase();
+        Cache::forget('notion_pages');
+        Cache::forget('notion_analytics');
+
+        return redirect()->route('notion.dashboard')
+            ->with('success', "Successfully synced {$count} items");
+    }
+
     public function create(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255'
-        ]);
+        $request->validate(['title' => 'required|string|max:255']);
+        $page = $this->notion->createPage(['title' => $request->title]);
+        Cache::forget('notion_pages');
+        Cache::forget('notion_analytics');
 
-        $page = $this->notion->createPage([
-            'title' => $request->title
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Page created successfully',
-            'page' => $page
-        ]);
+        return redirect()->route('notion.dashboard')
+            ->with('success', 'Page created successfully!');
     }
 
-    // SEARCH page
-    public function search(Request $request)
-    {
-        $keyword = $request->query('keyword');
-
-        $results = $this->notion->searchPages($keyword);
-
-        return response()->json([
-            'success' => true,
-            'results' => $results
-        ]);
-    }
-
-    // ARCHIVE page
     public function archive($id)
     {
-        $response = $this->notion->archivePage($id);
+        $this->notion->archivePage($id);
+        Cache::forget('notion_pages');
+        Cache::forget('notion_analytics');
 
-        return response()->json($response);
+        return redirect()->route('notion.dashboard')
+            ->with('success', 'Page archived successfully!');
     }
 }

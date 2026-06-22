@@ -2,78 +2,91 @@
 
 namespace App\Services\Notion;
 
+use Illuminate\Support\Facades\Http;
+use App\Models\NotionPage;
+
 class NotionService
 {
-    private $pages = [];
+    protected $apiKey;
+    protected $databaseId;
+    protected $baseUrl = 'https://api.notion.com/v1';
 
     public function __construct()
     {
-        $this->pages = [
-            [
-                'id' => '1',
-                'title' => 'Laravel Notes',
-                'archived' => false,
-            ],
-            [
-                'id' => '2',
-                'title' => 'API Documentation',
-                'archived' => false,
-            ],
-            [
-                'id' => '3',
-                'title' => 'Project Ideas',
-                'archived' => false,
-            ],
-        ];
+        $this->apiKey = config('services.notion.key');
+        $this->databaseId = config('services.notion.database_id');
     }
 
-    // Get all active pages
     public function getDatabaseItems()
     {
-        return array_values(array_filter($this->pages, function ($page) {
-            return !$page['archived'];
-        }));
+        $response = Http::withToken($this->apiKey)
+            ->withHeaders(['Notion-Version' => '2022-06-28'])
+            ->post("$this->baseUrl/databases/{$this->databaseId}/query");
+
+        return $response->json()['results'] ?? [];
     }
 
-    // Create new page
     public function createPage(array $data)
     {
-        $newPage = [
-            'id' => rand(100, 999),
-            'title' => $data['title'] ?? 'Untitled Page',
-            'archived' => false,
+        return Http::withToken($this->apiKey)
+            ->withHeaders(['Notion-Version' => '2022-06-28'])
+            ->post("$this->baseUrl/pages", [
+                'parent' => ['database_id' => $this->databaseId],
+                'properties' => [
+                    'Title' => [
+                        'title' => [['text' => ['content' => $data['title']]]]
+                    ]
+                ]
+            ])->json();
+    }
+
+    public function archivePage($pageId)
+    {
+        return Http::withToken($this->apiKey)
+            ->withHeaders(['Notion-Version' => '2022-06-28'])
+            ->patch("$this->baseUrl/pages/$pageId", [
+                'archived' => true
+            ])->json();
+    }
+
+    public function getAnalytics()
+    {
+        $items = $this->getDatabaseItems();
+        return [
+            'total'     => count($items),
+            'active'    => count(array_filter($items, fn($i) => !$i['archived'])),
+            'archived'  => count(array_filter($items, fn($i) => $i['archived'])),
+            'last_sync' => now()->format('d M Y, H:i'),
         ];
-
-        $this->pages[] = $newPage;
-
-        return $newPage;
     }
 
-    // Search pages
-    public function searchPages($keyword)
+    public function syncDatabase()
     {
-        return array_values(array_filter($this->pages, function ($page) use ($keyword) {
-            return stripos($page['title'], $keyword) !== false
-                && !$page['archived'];
-        }));
-    }
+        $remoteItems = $this->getDatabaseItems();
 
-    // Archive page
-    public function archivePage($id)
-    {
-        foreach ($this->pages as &$page) {
-            if ($page['id'] == $id) {
-                $page['archived'] = true;
+        foreach ($remoteItems as $item) {
+           
+            $titleProperty = $item['properties']['Title']['title'] ?? [];
+            $title = !empty($titleProperty)
+                ? ($titleProperty[0]['plain_text'] ?? 'Untitled') 
+                : 'Untitled';
 
-                return [
-                    'message' => 'Page archived successfully',
-                    'page' => $page
-                ];
-            }
+            NotionPage::updateOrCreate(
+                ['notion_id' => $item['id']],
+                [
+                    'title'       => $title,
+                    'is_archived' => $item['archived']
+                ]
+            );
         }
 
-        return [
-            'message' => 'Page not found'
-        ];
+        return count($remoteItems);
+    }
+
+  
+    public function extractTitle(array $item): string
+    {
+        $titleArr = $item['properties']['Title']['title'] ?? [];
+        return !empty($titleArr) ? ($titleArr[0]['plain_text'] ?? 'Untitled') : 'Untitled';
     }
 }
